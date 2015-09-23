@@ -1,0 +1,149 @@
+---
+title: "Common Code Base Survey"
+author: "Benjamin Chan (chanb@ohsu.edu)"
+date: "September 25, 2015"
+output: ioslides_presentation
+---
+
+## Get data
+
+* [SurveyMokey](https://www.surveymonkey.com) data was downloaded on 9/17/2015
+
+```{r, echo=FALSE, results='hide'}
+f <- file.path(getwd(), "Data_All_150917.zip")
+unzip(f, list=TRUE)
+unzip(f, exdir=tempdir())
+list.files(file.path(tempdir(), "CSV"))
+```
+
+* Excel file was read into `r R.Version()$version.string`
+
+```{r, echo=FALSE, results='hide'}
+library(xlsx, quietly=TRUE)
+library(data.table, quietly=TRUE)
+f <- file.path(tempdir(), "Excel", "Sheet_1.xls")
+D <- read.xlsx(f, sheetIndex=1, startRow=3, header=FALSE, stringsAsFactors=FALSE)
+D <- D[, c(1, 6:ncol(D))]
+D <- data.table(D)
+setnames(D,
+         names(D),
+         c("id",
+           "Interest1",         # I do not use code directly
+           # "Interest2",       # I am not interested in uploading my code to a shared OHSU code base
+           "Interest3",         # I am not interested in downloading code from a shared OHSU code base
+           "Interest4",         # I might upload code occasionally
+           "Interest5",         # I might download code occasionally
+           "Interest6",         # I would like to upload code regularly as I write new items
+           "Interest7",         # I would like to download code regularly as I require new items
+           "CurrentUse1",       # Looking over someone's shoulder at their screen
+           "CurrentUse2",       # Email
+           "CurrentUse3",       # SharePoint
+           "CurrentUse4",       # USB drives or other portable media
+           "CurrentUse5",       # File systems on multi-user machines such as Linux servers
+           "CurrentUse6",       # X:\ drive
+           "CurrentUse7",       # box.com
+           "CurrentUse8",       # CVS, SVN or other version controlled centralized repositories
+           "CurrentUse9",       # Github, a distributed repository
+           "CurrentUse10",      # Other (please specify)
+           "CurrentUseGithub",  # Response
+           "Security1",         # I am not sure
+           "Security2",         # Enterprise code base, inside OHSU firewall, for maximum security
+           "Security3",         # Private code base, publicly hosted with host-supplied security, for sharing code only with authorized individuals
+           "Security4",         # Public code base, for sharing OHSU's non-confidential insights and code with external collaborators and others who might find this helpful
+           "WouldUse1",         # I would not use an OHSU Github repository
+           "WouldUse2",         # I would upload code occasionally
+           "WouldUse3",         # I would download code occasionally
+           "WouldUse4",         # I would upload code regularly
+           "WouldUse5",         # I would download code regularly
+           "DiscussFurther",    # Response
+           "Concerns",          # Open-Ended Response
+           "Learn",             # Open-Ended Response
+           "OtherGroups",       # Open-Ended Response
+           "Contact"))          # Open-Ended Response
+```
+
+* *Check all that apply* responses recoded to logical
+
+```{r, echo=FALSE, results='hide'}
+D[,
+  `:=` (Interest1 = as.logical(!is.na(Interest1)),
+        Interest3 = as.logical(!is.na(Interest3)),
+        Interest4 = as.logical(!is.na(Interest4)),
+        Interest5 = as.logical(!is.na(Interest5)),
+        Interest6 = as.logical(!is.na(Interest6)),
+        Interest7 = as.logical(!is.na(Interest7)),
+        CurrentUse1  = as.logical(!is.na(CurrentUse1 )),
+        CurrentUse2  = as.logical(!is.na(CurrentUse2 )),
+        CurrentUse3  = as.logical(!is.na(CurrentUse3 )),
+        CurrentUse4  = as.logical(!is.na(CurrentUse4 )),
+        CurrentUse5  = as.logical(!is.na(CurrentUse5 )),
+        CurrentUse6  = as.logical(!is.na(CurrentUse6 )),
+        CurrentUse7  = as.logical(!is.na(CurrentUse7 )),
+        CurrentUse8  = as.logical(!is.na(CurrentUse8 )),
+        CurrentUse9  = as.logical(!is.na(CurrentUse9 )),
+        CurrentUse10 = as.logical(!is.na(CurrentUse10)),
+        Security1 = as.logical(!is.na(Security1)),
+        Security2 = as.logical(!is.na(Security2)),
+        Security3 = as.logical(!is.na(Security3)),
+        Security4 = as.logical(!is.na(Security4)),
+        WouldUse1 = as.logical(!is.na(WouldUse1)),
+        WouldUse2 = as.logical(!is.na(WouldUse2)),
+        WouldUse3 = as.logical(!is.na(WouldUse3)),
+        WouldUse4 = as.logical(!is.na(WouldUse4)),
+        WouldUse5 = as.logical(!is.na(WouldUse5)))]
+```
+
+* Data table reshaped from wide to long
+
+```{r, echo=FALSE, results='hide'}
+library(reshape2)
+Dlogical <- melt(D, id.vars="id", measure.vars=c(2:7, 8:17, 19:22, 23:27))
+```
+
+
+## How much **interest** do you have in a common OHSU repository for code?
+
+```{r, echo=FALSE}
+library(ggplot2, quietly=TRUE)
+G <- ggplot(Dlogical[grep("Interest", variable)])
+G <- G + aes(x=value, fill=value)
+G <- G + geom_bar()
+G <- G + facet_wrap(~ variable, nrow=2)
+G
+```
+
+
+```
+How much interest do you have in a common OHSU repository for code, either as a way to share your code or a resource when you are looking for ideas or methods?  Please check all that apply. I do not use code directly
+  I am not interested in uploading my code to a shared OHSU code base
+  I am not interested in downloading  code from a shared OHSU code base
+  I might upload code occasionally
+  I might download code occasionally
+  I would like to upload code regularly as I write new items
+  I would like to download code regularly as I require new items
+Do you use any of the following code sharing platforms?  Please check all that apply. Looking over someone's shoulder at their screen
+  Email
+  SharePoint
+  USB drives or other portable media
+  File systems on multi-user machines such as Linux servers
+  X:\ drive
+  box.com
+  CVS, SVN or other version controlled centralized repositories
+  Github, a distributed repository
+  Other (please specify)
+To get specific, are you a Github user? Response
+With which level(s) of security in code-sharing would you be comfortable?  Please check all that apply to your work.  I am not sure
+  Enterprise code base, inside OHSU firewall, for maximum security
+  Private code base, publicly hosted with host-supplied security, for sharing code only with authorized individuals
+  Public code base, for sharing OHSU's non-confidential insights and code with external collaborators and others who might find this helpful
+If OHSU were to set up a code base comprising Github repositories with appropriate security, how likely would you be to use it?  Please check all that apply. I would not use an OHSU Github repository
+  I would upload code occasionally
+  I would download code occasionally
+  I would upload code regularly
+  I would download code regularly
+Are you interested in further discussion of code sharing at OHSU? Response
+Please share any concerns you've had with code sharing. Open-Ended Response
+What are some things you'd like to learn about Github?  Open-Ended Response
+We would like to know more about scientists’ perceptions regarding the distribution of computational and analytic expertise across groups at OHSU.  If you would, please list the OHSU departments, centers and institutes of which you know that house experienced computational scientists. Open-Ended Response
+If you would like to be contacted regarding code sharing at OHSU, please enter your email address here. Open-Ended Response
+```
