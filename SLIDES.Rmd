@@ -1,6 +1,8 @@
 ---
-title: "Common Code Base Survey"
-author: "Benjamin Chan (chanb@ohsu.edu)"
+title: "Results from the Code Sharing Survey"
+author: |
+  | Benjamin Chan (chanb@ohsu.edu)
+  | Center for Health Systems Effectiveness
 date: "September 25, 2015"
 output:
   ioslides_presentation:
@@ -8,6 +10,7 @@ output:
     keep_md: yes
     widescreen: yes
 ---
+
 
 ## Tidy data
 
@@ -24,7 +27,7 @@ list.files(file.path(tempdir(), "CSV"))
 
 * Read CSV file into `r R.Version()$version.string`
 
-```{r, echo=FALSE, results='hide', warning=FALSE}
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 library(data.table, quietly=TRUE)
 library(bit64, quietly=TRUE)
 f <- file.path(tempdir(), "CSV", "Sheet_1.csv")
@@ -68,7 +71,7 @@ setnames(D,
 
 * Factorize some responses
 
-```{r}
+```{r, echo=FALSE, results='hide'}
 D[,
   CurrentUseGithub := factor(CurrentUseGithub,
                              levels=c("I have an account on Github but use it sparingly",
@@ -196,6 +199,8 @@ labels <- c("Do not code",
 DCheckbox[, variable := factor(variable, levels=levels, labels=labels)]
 ```
 
+* See the code [here](makeSlides.Rmd)
+
 
 ## How much interest do you have in a common OHSU repository for code?
 
@@ -279,3 +284,87 @@ G <- G + coord_flip()
 G <- G + theme(legend.position="none")
 G
 ```
+
+
+## Please share any concerns you've had with code sharing
+
+```{r, echo=FALSE}
+n <- length(D[!is.na(Concerns), Concerns])
+concerns <- D[!is.na(Concerns), Concerns][order(sample(1:n))]
+```
+
+1. `r concerns[1]`
+1. `r concerns[2]`
+1. `r concerns[3]`
+1. `r concerns[4]`
+1. `r concerns[5]`
+
+## Any concerns...
+
+1. `r concerns[6]`
+1. `r concerns[7]`
+1. `r concerns[8]`
+1. `r concerns[9]`
+
+## Any concerns...
+
+1. `r concerns[10]`
+1. `r concerns[11]`
+1. `r concerns[12]`
+1. `r concerns[13]`
+
+
+## What are some things you'd like to learn about Github?
+
+```{r, echo=FALSE, results='asis'}
+n <- length(D[!is.na(Learn), Learn])
+learn <- D[!is.na(Learn), Learn][order(sample(1:n))]
+```
+
+1. `r learn[1]`
+1. `r learn[2]`
+1. `r learn[3]`
+1. `r learn[4]`
+1. `r learn[5]`
+
+## Some things you'd like to learn... ?
+
+1. `r learn[6]`
+1. `r learn[7]`
+1. `r learn[8]`
+1. `r learn[9]`
+
+## Some things you'd like to learn... ?
+
+1. `r learn[10]`
+1. `r learn[11]`
+1. `r learn[12]`
+1. `r learn[13]`
+
+
+## List the OHSU departments, centers and institutes of which you know that house experienced computational scientists
+
+```{r, echo=FALSE, results='asis'}
+n <- length(D[!is.na(OtherGroups), OtherGroups])
+other <- D[!is.na(OtherGroups), OtherGroups][order(sample(1:n))]
+```
+
+1. `r other[1]`
+1. `r other[2]`
+1. `r other[3]`
+1. `r other[4]`
+1. `r other[5]`
+
+## List the OHSU departments...
+
+1. `r other[6]`
+1. `r other[7]`
+1. `r other[8]`
+1. `r other[9]`
+
+## List the OHSU departments...
+
+1. `r other[10]`
+1. `r other[11]`
+1. `r other[12]`
+1. `r other[13]`
