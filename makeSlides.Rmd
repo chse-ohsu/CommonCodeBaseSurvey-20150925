@@ -2,12 +2,18 @@
 title: "Common Code Base Survey"
 author: "Benjamin Chan (chanb@ohsu.edu)"
 date: "September 25, 2015"
-output: ioslides_presentation
+output:
+  ioslides_presentation:
+    fig_width: 10
+    keep_md: yes
+    widescreen: yes
 ---
 
-## Get data
+## Tidy data
 
-* [SurveyMokey](https://www.surveymonkey.com) data was downloaded on 9/17/2015
+* [SurveyMonkey](https://www.surveymonkey.com) data file was downloaded on 9/17/2015
+
+* Unzip the downloaded file
 
 ```{r, echo=FALSE, results='hide'}
 f <- file.path(getwd(), "Data_All_150917.zip")
@@ -16,134 +22,260 @@ unzip(f, exdir=tempdir())
 list.files(file.path(tempdir(), "CSV"))
 ```
 
-* Excel file was read into `r R.Version()$version.string`
+* Read CSV file into `r R.Version()$version.string`
 
-```{r, echo=FALSE, results='hide'}
-library(xlsx, quietly=TRUE)
+```{r, echo=FALSE, results='hide', warning=FALSE}
 library(data.table, quietly=TRUE)
-f <- file.path(tempdir(), "Excel", "Sheet_1.xls")
-D <- read.xlsx(f, sheetIndex=1, startRow=3, header=FALSE, stringsAsFactors=FALSE)
-D <- D[, c(1, 6:ncol(D))]
-D <- data.table(D)
+library(bit64, quietly=TRUE)
+f <- file.path(tempdir(), "CSV", "Sheet_1.csv")
+D <- fread(f, header=FALSE, na.strings=c("NA", ""), skip=2, drop=2:9, stringsAsFactors=FALSE)
 setnames(D,
          names(D),
          c("id",
-           "Interest1",         # I do not use code directly
-           # "Interest2",       # I am not interested in uploading my code to a shared OHSU code base
-           "Interest3",         # I am not interested in downloading code from a shared OHSU code base
-           "Interest4",         # I might upload code occasionally
-           "Interest5",         # I might download code occasionally
-           "Interest6",         # I would like to upload code regularly as I write new items
-           "Interest7",         # I would like to download code regularly as I require new items
-           "CurrentUse1",       # Looking over someone's shoulder at their screen
-           "CurrentUse2",       # Email
-           "CurrentUse3",       # SharePoint
-           "CurrentUse4",       # USB drives or other portable media
-           "CurrentUse5",       # File systems on multi-user machines such as Linux servers
-           "CurrentUse6",       # X:\ drive
-           "CurrentUse7",       # box.com
-           "CurrentUse8",       # CVS, SVN or other version controlled centralized repositories
-           "CurrentUse9",       # Github, a distributed repository
-           "CurrentUse10",      # Other (please specify)
-           "CurrentUseGithub",  # Response
-           "Security1",         # I am not sure
-           "Security2",         # Enterprise code base, inside OHSU firewall, for maximum security
-           "Security3",         # Private code base, publicly hosted with host-supplied security, for sharing code only with authorized individuals
-           "Security4",         # Public code base, for sharing OHSU's non-confidential insights and code with external collaborators and others who might find this helpful
-           "WouldUse1",         # I would not use an OHSU Github repository
-           "WouldUse2",         # I would upload code occasionally
-           "WouldUse3",         # I would download code occasionally
-           "WouldUse4",         # I would upload code regularly
-           "WouldUse5",         # I would download code regularly
-           "DiscussFurther",    # Response
-           "Concerns",          # Open-Ended Response
-           "Learn",             # Open-Ended Response
-           "OtherGroups",       # Open-Ended Response
-           "Contact"))          # Open-Ended Response
+           "Interest1",
+           "Interest2",
+           "Interest3",
+           "Interest4",
+           "Interest5",
+           "Interest6",
+           "Interest7",
+           "CurrentUse1",
+           "CurrentUse2",
+           "CurrentUse3",
+           "CurrentUse4",
+           "CurrentUse5",
+           "CurrentUse6",
+           "CurrentUse7",
+           "CurrentUse8",
+           "CurrentUse9",
+           "CurrentUse10",
+           "CurrentUseGithub",
+           "Security1",
+           "Security2",
+           "Security3",
+           "Security4",
+           "WouldUse1",
+           "WouldUse2",
+           "WouldUse3",
+           "WouldUse4",
+           "WouldUse5",
+           "DiscussFurther",
+           "Concerns",
+           "Learn",
+           "OtherGroups",
+           "Contact"))        
 ```
 
-* *Check all that apply* responses recoded to logical
+* Factorize some responses
+
+```{r}
+D[,
+  CurrentUseGithub := factor(CurrentUseGithub,
+                             levels=c("I have an account on Github but use it sparingly",
+                                      "I have an account and Github is my go-to spot for code",
+                                      "I know of Github but am not a current user"),
+                             labels=c("Have account, use sparingly",
+                                      "Have account, my go-to",
+                                      "No account, not a user"))]
+D[,
+  DiscussFurther := factor(DiscussFurther,
+                         labels=c("Yes",
+                                  "YES!!!",
+                                  "Somewhat"))]
+```
+
+* Recode *check all that apply* responses from character to integer
 
 ```{r, echo=FALSE, results='hide'}
 D[,
-  `:=` (Interest1 = as.logical(!is.na(Interest1)),
-        Interest3 = as.logical(!is.na(Interest3)),
-        Interest4 = as.logical(!is.na(Interest4)),
-        Interest5 = as.logical(!is.na(Interest5)),
-        Interest6 = as.logical(!is.na(Interest6)),
-        Interest7 = as.logical(!is.na(Interest7)),
-        CurrentUse1  = as.logical(!is.na(CurrentUse1 )),
-        CurrentUse2  = as.logical(!is.na(CurrentUse2 )),
-        CurrentUse3  = as.logical(!is.na(CurrentUse3 )),
-        CurrentUse4  = as.logical(!is.na(CurrentUse4 )),
-        CurrentUse5  = as.logical(!is.na(CurrentUse5 )),
-        CurrentUse6  = as.logical(!is.na(CurrentUse6 )),
-        CurrentUse7  = as.logical(!is.na(CurrentUse7 )),
-        CurrentUse8  = as.logical(!is.na(CurrentUse8 )),
-        CurrentUse9  = as.logical(!is.na(CurrentUse9 )),
-        CurrentUse10 = as.logical(!is.na(CurrentUse10)),
-        Security1 = as.logical(!is.na(Security1)),
-        Security2 = as.logical(!is.na(Security2)),
-        Security3 = as.logical(!is.na(Security3)),
-        Security4 = as.logical(!is.na(Security4)),
-        WouldUse1 = as.logical(!is.na(WouldUse1)),
-        WouldUse2 = as.logical(!is.na(WouldUse2)),
-        WouldUse3 = as.logical(!is.na(WouldUse3)),
-        WouldUse4 = as.logical(!is.na(WouldUse4)),
-        WouldUse5 = as.logical(!is.na(WouldUse5)))]
+  `:=` (Interest1 = as.integer(!is.na(Interest1)),
+        Interest2 = as.integer(!is.na(Interest2)),
+        Interest3 = as.integer(!is.na(Interest3)),
+        Interest4 = as.integer(!is.na(Interest4)),
+        Interest5 = as.integer(!is.na(Interest5)),
+        Interest6 = as.integer(!is.na(Interest6)),
+        Interest7 = as.integer(!is.na(Interest7)),
+        CurrentUse1  = as.integer(!is.na(CurrentUse1 )),
+        CurrentUse2  = as.integer(!is.na(CurrentUse2 )),
+        CurrentUse3  = as.integer(!is.na(CurrentUse3 )),
+        CurrentUse4  = as.integer(!is.na(CurrentUse4 )),
+        CurrentUse5  = as.integer(!is.na(CurrentUse5 )),
+        CurrentUse6  = as.integer(!is.na(CurrentUse6 )),
+        CurrentUse7  = as.integer(!is.na(CurrentUse7 )),
+        CurrentUse8  = as.integer(!is.na(CurrentUse8 )),
+        CurrentUse9  = as.integer(!is.na(CurrentUse9 )),
+        CurrentUse10 = as.integer(!is.na(CurrentUse10)),
+        Security1 = as.integer(!is.na(Security1)),
+        Security2 = as.integer(!is.na(Security2)),
+        Security3 = as.integer(!is.na(Security3)),
+        Security4 = as.integer(!is.na(Security4)),
+        WouldUse1 = as.integer(!is.na(WouldUse1)),
+        WouldUse2 = as.integer(!is.na(WouldUse2)),
+        WouldUse3 = as.integer(!is.na(WouldUse3)),
+        WouldUse4 = as.integer(!is.na(WouldUse4)),
+        WouldUse5 = as.integer(!is.na(WouldUse5)))]
 ```
 
-* Data table reshaped from wide to long
+* Reshaped data table from wide to long
 
 ```{r, echo=FALSE, results='hide'}
 library(reshape2)
-Dlogical <- melt(D, id.vars="id", measure.vars=c(2:7, 8:17, 19:22, 23:27))
+isCheckbox <- 1:ncol(D)
+isCheckbox <- isCheckbox[sapply(D, class) == "integer"]
+DCheckbox <- melt(D, id.vars="id", measure.vars=isCheckbox)
+```
+
+* Add `question` string
+
+```{r, echo=FALSE, results='hide'}
+DCheckbox[grep("Interest", variable),
+          question := "How much interest do you have in a common OHSU repository for code, either as a way to share your code or a resource when you are looking for ideas or methods?"]
+DCheckbox[grep("CurrentUse", variable),
+          question := "Do you use any of the following code sharing platforms?"]
+DCheckbox[grep("Security", variable),
+          question := "With which level(s) of security in code-sharing would you be comfortable?"]
+DCheckbox[grep("WouldUse", variable),
+          question := "If OHSU were to set up a code base comprising Github repositories with appropriate security, how likely would you be to use it?"]
+```
+
+* Factorize `variable`
+
+```{r, echo=FALSE, results='hide'}
+levels <- c("Interest1",
+            "Interest2",
+            "Interest3",
+            "Interest4",
+            "Interest5",
+            "Interest6",
+            "Interest7",
+            "CurrentUse1",
+            "CurrentUse2",
+            "CurrentUse3",
+            "CurrentUse4",
+            "CurrentUse5",
+            "CurrentUse6",
+            "CurrentUse7",
+            "CurrentUse8",
+            "CurrentUse9",
+            "CurrentUse10",    
+            "Security1",
+            "Security2",
+            "Security3",
+            "Security4",
+            "WouldUse1",
+            "WouldUse2",
+            "WouldUse3",
+            "WouldUse4",
+            "WouldUse5")
+labels <- c("Do not code",
+            "Not interested in uploading",
+            "Not interested in downloading",
+            "Might upload",
+            "Might download",
+            "Upload regularly",
+            "Download regularly",
+            "Looking over shoulder",
+            "Email",
+            "SharePoint",
+            "Portable media",
+            "Multi-user machines",
+            "X:\ drive",
+            "box.com",
+            "CVS, SVN or other VCS",
+            "Github",
+            "Other",    
+            "Not sure",
+            "Enterprise, inside OHSU firewall",
+            "Private, publicly hosted",
+            "Public",
+            "Would not use OHSU Github",
+            "Would upload occasionally",
+            "Would download occasionally",
+            "Would upload regularly",
+            "Would download regularly")
+DCheckbox[, variable := factor(variable, levels=levels, labels=labels)]
 ```
 
 
-## How much **interest** do you have in a common OHSU repository for code?
+## How much interest do you have in a common OHSU repository for code?
 
 ```{r, echo=FALSE}
-library(ggplot2, quietly=TRUE)
-G <- ggplot(Dlogical[grep("Interest", variable)])
-G <- G + aes(x=value, fill=value)
+# url <- "https://gist.githubusercontent.com/benjamin-chan/3d569db12bb223e8b3c4/raw/2fb6124218cef53484a320d1a91fcc7ef13436dc/colorPalette.R"
+# source(url)
+colorPalette <- function () {
+  c(rgb(  1,  67, 134, maxColorValue=255),
+    rgb(119, 120, 123, maxColorValue=255),
+    rgb(139, 184, 234, maxColorValue=255),
+    rgb(188, 190, 192, maxColorValue=255),
+    rgb( 94, 122, 162, maxColorValue=255),
+    rgb(223, 122,  28, maxColorValue=255))
+}
+plotLogical <- function(D) {
+  require(ggplot2, quietly=TRUE)
+  G <- ggplot(D)
+  G <- G + aes(x=variable, fill=factor(-value))
+  G <- G + geom_bar()
+  G <- G + scale_fill_manual("",
+                             labels=c("Checked", "Unchecked"),
+                             values=colorPalette())
+  G <- G + scale_x_discrete("")
+  G <- G + scale_y_continuous("Number of responses")
+  G <- G + coord_flip()
+  G
+}
+```
+
+```{r, echo=FALSE}
+plotLogical(DCheckbox[grep("How much interest", question)])
+```
+
+
+## Do you use any of the following code sharing platforms?
+
+```{r, echo=FALSE}
+plotLogical(DCheckbox[grep("Do you use", question)])
+```
+
+
+## To get specific, are you a Github user?
+
+```{r, echo=FALSE}
+G <- ggplot(D)
+G <- G + aes(x=CurrentUseGithub, fill=CurrentUseGithub)
 G <- G + geom_bar()
-G <- G + facet_wrap(~ variable, nrow=2)
+G <- G + scale_fill_manual("", values=colorPalette())
+G <- G + scale_x_discrete("")
+G <- G + scale_y_continuous("Number of responses")
+G <- G + coord_flip()
+G <- G + theme(legend.position="none")
 G
 ```
 
 
+## With which level(s) of security in code-sharing would you be comfortable?
+
+```{r, echo=FALSE}
+plotLogical(DCheckbox[grep("With which level", question)])
 ```
-How much interest do you have in a common OHSU repository for code, either as a way to share your code or a resource when you are looking for ideas or methods?  Please check all that apply. I do not use code directly
-  I am not interested in uploading my code to a shared OHSU code base
-  I am not interested in downloading  code from a shared OHSU code base
-  I might upload code occasionally
-  I might download code occasionally
-  I would like to upload code regularly as I write new items
-  I would like to download code regularly as I require new items
-Do you use any of the following code sharing platforms?  Please check all that apply. Looking over someone's shoulder at their screen
-  Email
-  SharePoint
-  USB drives or other portable media
-  File systems on multi-user machines such as Linux servers
-  X:\ drive
-  box.com
-  CVS, SVN or other version controlled centralized repositories
-  Github, a distributed repository
-  Other (please specify)
-To get specific, are you a Github user? Response
-With which level(s) of security in code-sharing would you be comfortable?  Please check all that apply to your work.  I am not sure
-  Enterprise code base, inside OHSU firewall, for maximum security
-  Private code base, publicly hosted with host-supplied security, for sharing code only with authorized individuals
-  Public code base, for sharing OHSU's non-confidential insights and code with external collaborators and others who might find this helpful
-If OHSU were to set up a code base comprising Github repositories with appropriate security, how likely would you be to use it?  Please check all that apply. I would not use an OHSU Github repository
-  I would upload code occasionally
-  I would download code occasionally
-  I would upload code regularly
-  I would download code regularly
-Are you interested in further discussion of code sharing at OHSU? Response
-Please share any concerns you've had with code sharing. Open-Ended Response
-What are some things you'd like to learn about Github?  Open-Ended Response
-We would like to know more about scientists’ perceptions regarding the distribution of computational and analytic expertise across groups at OHSU.  If you would, please list the OHSU departments, centers and institutes of which you know that house experienced computational scientists. Open-Ended Response
-If you would like to be contacted regarding code sharing at OHSU, please enter your email address here. Open-Ended Response
+
+
+## If OHSU were to set up a code base comprising Github repositories with appropriate security, how likely would you be to use it?
+
+```{r, echo=FALSE}
+plotLogical(DCheckbox[grep("Github", question)])
+```
+
+
+## Are you interested in further discussion of code sharing at OHSU?
+
+```{r, echo=FALSE}
+G <- ggplot(D)
+G <- G + aes(x=DiscussFurther, fill=DiscussFurther)
+G <- G + geom_bar()
+G <- G + scale_fill_manual("", values=colorPalette())
+G <- G + scale_x_discrete("")
+G <- G + scale_y_continuous("Number of responses")
+G <- G + coord_flip()
+G <- G + theme(legend.position="none")
+G
 ```
