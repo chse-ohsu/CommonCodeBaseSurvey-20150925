@@ -199,7 +199,7 @@ labels <- c("Do not code",
 DCheckbox[, variable := factor(variable, levels=levels, labels=labels)]
 ```
 
-* See the code [here](makeSlides.Rmd)
+* See the code [here](https://github.com/chse-ohsu/CommonCodeBaseSurvey-20150925/blob/master/SLIDES.Rmd)
 
 
 ## How much interest do you have in a common OHSU repository for code?
