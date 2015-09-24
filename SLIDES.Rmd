@@ -19,7 +19,7 @@ output:
 * Unzip the downloaded file
 
 ```{r, echo=FALSE, results='hide'}
-f <- file.path(getwd(), "Data_All_150917.zip")
+f <- file.path(getwd(), "Data_All_150924.zip")
 unzip(f, list=TRUE)
 unzip(f, exdir=tempdir())
 list.files(file.path(tempdir(), "CSV"))
@@ -32,6 +32,7 @@ library(data.table, quietly=TRUE)
 library(bit64, quietly=TRUE)
 f <- file.path(tempdir(), "CSV", "Sheet_1.csv")
 D <- fread(f, header=FALSE, na.strings=c("NA", ""), skip=2, drop=2:9, stringsAsFactors=FALSE)
+# D <- fread(f, header=FALSE, na.strings=c("NA", ""), skip=2, stringsAsFactors=FALSE)
 setnames(D,
          names(D),
          c("id",
@@ -73,18 +74,30 @@ setnames(D,
 
 ```{r, echo=FALSE, results='hide'}
 D[,
-  CurrentUseGithub := factor(CurrentUseGithub,
-                             levels=c("I have an account on Github but use it sparingly",
-                                      "I have an account and Github is my go-to spot for code",
-                                      "I know of Github but am not a current user"),
-                             labels=c("Have account, use sparingly",
-                                      "Have account, my go-to",
-                                      "No account, not a user"))]
+  CurrentUseGithub2 := factor(CurrentUseGithub,
+                              levels=c("I have an account and Github is my go-to spot for code",
+                                       "I have an account on Github but use it sparingly",
+                                       "I know of Github but am not a current user",
+                                       "What's Github?"),
+                              labels=c("Have account, my go-to",
+                                       "Have account, use sparingly",
+                                       "No account, not a user",
+                                       "What's Github?"),
+                              ordered=TRUE)]
+# D[, .N, .(CurrentUseGithub, CurrentUseGithub2)]
 D[,
-  DiscussFurther := factor(DiscussFurther,
-                         labels=c("Yes",
-                                  "YES!!!",
-                                  "Somewhat"))]
+  DiscussFurther2 := factor(DiscussFurther,
+                            levels=c("Somewhat; please notify me if new options become available",
+                                     "Yes! Â I am educated and passionate about proper code sharing and would like to help guide practices at OHSU",
+                                     "No, please remove me from this mailing list",
+                                     "Yes; please include me in further discussions"),
+                            labels=c("Somewhat",
+                                     "YES!!!",
+                                     "No",
+                                     "Yes"),
+                            ordered=TRUE)]
+D[is.na(DiscussFurther2), DiscussFurther2 := "YES!!!"]
+# D[, .N, .(DiscussFurther, DiscussFurther2)]
 ```
 
 * Recode *check all that apply* responses from character to integer
@@ -246,7 +259,7 @@ plotLogical(DCheckbox[grep("Do you use", question)])
 
 ```{r, echo=FALSE}
 G <- ggplot(D)
-G <- G + aes(x=CurrentUseGithub, fill=CurrentUseGithub)
+G <- G + aes(x=CurrentUseGithub2, fill=CurrentUseGithub2)
 G <- G + geom_bar()
 G <- G + scale_fill_manual("", values=colorPalette())
 G <- G + scale_x_discrete("")
@@ -275,7 +288,7 @@ plotLogical(DCheckbox[grep("Github", question)])
 
 ```{r, echo=FALSE}
 G <- ggplot(D)
-G <- G + aes(x=DiscussFurther, fill=DiscussFurther)
+G <- G + aes(x=DiscussFurther2, fill=DiscussFurther2)
 G <- G + geom_bar()
 G <- G + scale_fill_manual("", values=colorPalette())
 G <- G + scale_x_discrete("")
@@ -296,12 +309,15 @@ concerns <- D[!is.na(Concerns), Concerns][order(sample(1:n))]
 1. `r concerns[1]`
 1. `r concerns[2]`
 1. `r concerns[3]`
-1. `r concerns[4]`
-1. `r concerns[5]`
 
 ## Any concerns...
 
+1. `r concerns[4]`
+1. `r concerns[5]`
 1. `r concerns[6]`
+
+## Any concerns...
+
 1. `r concerns[7]`
 1. `r concerns[8]`
 1. `r concerns[9]`
@@ -311,7 +327,23 @@ concerns <- D[!is.na(Concerns), Concerns][order(sample(1:n))]
 1. `r concerns[10]`
 1. `r concerns[11]`
 1. `r concerns[12]`
+
+## Any concerns...
+
 1. `r concerns[13]`
+1. `r concerns[14]`
+1. `r concerns[15]`
+
+## Any concerns...
+
+1. `r concerns[16]`
+1. `r concerns[17]`
+1. `r concerns[18]`
+
+## Any concerns...
+
+1. `r concerns[19]`
+1. `r concerns[20]`
 
 
 ## What are some things you'd like to learn about Github?
@@ -324,12 +356,15 @@ learn <- D[!is.na(Learn), Learn][order(sample(1:n))]
 1. `r learn[1]`
 1. `r learn[2]`
 1. `r learn[3]`
-1. `r learn[4]`
-1. `r learn[5]`
 
 ## Some things you'd like to learn... ?
 
+1. `r learn[4]`
+1. `r learn[5]`
 1. `r learn[6]`
+
+## Some things you'd like to learn... ?
+
 1. `r learn[7]`
 1. `r learn[8]`
 1. `r learn[9]`
@@ -339,7 +374,24 @@ learn <- D[!is.na(Learn), Learn][order(sample(1:n))]
 1. `r learn[10]`
 1. `r learn[11]`
 1. `r learn[12]`
+
+## Some things you'd like to learn... ?
+
 1. `r learn[13]`
+1. `r learn[14]`
+1. `r learn[15]`
+
+## Some things you'd like to learn... ?
+
+1. `r learn[16]`
+1. `r learn[17]`
+1. `r learn[18]`
+
+## Some things you'd like to learn... ?
+
+1. `r learn[19]`
+1. `r learn[20]`
+1. `r learn[21]`
 
 
 ## List the OHSU departments, centers and institutes of which you know that house experienced computational scientists
@@ -352,12 +404,15 @@ other <- D[!is.na(OtherGroups), OtherGroups][order(sample(1:n))]
 1. `r other[1]`
 1. `r other[2]`
 1. `r other[3]`
-1. `r other[4]`
-1. `r other[5]`
 
 ## List the OHSU departments...
 
+1. `r other[4]`
+1. `r other[5]`
 1. `r other[6]`
+
+## List the OHSU departments...
+
 1. `r other[7]`
 1. `r other[8]`
 1. `r other[9]`
@@ -367,4 +422,21 @@ other <- D[!is.na(OtherGroups), OtherGroups][order(sample(1:n))]
 1. `r other[10]`
 1. `r other[11]`
 1. `r other[12]`
+
+## List the OHSU departments...
+
 1. `r other[13]`
+1. `r other[14]`
+1. `r other[15]`
+
+## List the OHSU departments...
+
+1. `r other[16]`
+1. `r other[17]`
+1. `r other[18]`
+
+## List the OHSU departments...
+
+1. `r other[19]`
+1. `r other[20]`
+1. `r other[21]`
