@@ -7,7 +7,7 @@ September 25, 2015
 
 ## Tidy data
 
-* [SurveyMonkey](https://www.surveymonkey.com) data file was downloaded on 9/17/2015
+* [SurveyMonkey](https://www.surveymonkey.com) data file was downloaded on 9/24/2015
 
 * Unzip the downloaded file
 
