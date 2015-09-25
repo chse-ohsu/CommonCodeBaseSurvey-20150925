@@ -309,39 +309,21 @@ concerns <- D[!is.na(Concerns), Concerns][order(sample(1:n))]
 1. `r concerns[1]`
 1. `r concerns[2]`
 1. `r concerns[3]`
-
-## Any concerns...
-
 1. `r concerns[4]`
 1. `r concerns[5]`
 1. `r concerns[6]`
-
-## Any concerns...
-
 1. `r concerns[7]`
 1. `r concerns[8]`
 1. `r concerns[9]`
-
-## Any concerns...
-
 1. `r concerns[10]`
 1. `r concerns[11]`
 1. `r concerns[12]`
-
-## Any concerns...
-
 1. `r concerns[13]`
 1. `r concerns[14]`
 1. `r concerns[15]`
-
-## Any concerns...
-
 1. `r concerns[16]`
 1. `r concerns[17]`
 1. `r concerns[18]`
-
-## Any concerns...
-
 1. `r concerns[19]`
 1. `r concerns[20]`
 
@@ -356,39 +338,21 @@ learn <- D[!is.na(Learn), Learn][order(sample(1:n))]
 1. `r learn[1]`
 1. `r learn[2]`
 1. `r learn[3]`
-
-## Some things you'd like to learn... ?
-
 1. `r learn[4]`
 1. `r learn[5]`
 1. `r learn[6]`
-
-## Some things you'd like to learn... ?
-
 1. `r learn[7]`
 1. `r learn[8]`
 1. `r learn[9]`
-
-## Some things you'd like to learn... ?
-
 1. `r learn[10]`
 1. `r learn[11]`
 1. `r learn[12]`
-
-## Some things you'd like to learn... ?
-
 1. `r learn[13]`
 1. `r learn[14]`
 1. `r learn[15]`
-
-## Some things you'd like to learn... ?
-
 1. `r learn[16]`
 1. `r learn[17]`
 1. `r learn[18]`
-
-## Some things you'd like to learn... ?
-
 1. `r learn[19]`
 1. `r learn[20]`
 1. `r learn[21]`
@@ -404,39 +368,21 @@ other <- D[!is.na(OtherGroups), OtherGroups][order(sample(1:n))]
 1. `r other[1]`
 1. `r other[2]`
 1. `r other[3]`
-
-## List the OHSU departments...
-
 1. `r other[4]`
 1. `r other[5]`
 1. `r other[6]`
-
-## List the OHSU departments...
-
 1. `r other[7]`
 1. `r other[8]`
 1. `r other[9]`
-
-## List the OHSU departments...
-
 1. `r other[10]`
 1. `r other[11]`
 1. `r other[12]`
-
-## List the OHSU departments...
-
 1. `r other[13]`
 1. `r other[14]`
 1. `r other[15]`
-
-## List the OHSU departments...
-
 1. `r other[16]`
 1. `r other[17]`
 1. `r other[18]`
-
-## List the OHSU departments...
-
 1. `r other[19]`
 1. `r other[20]`
 1. `r other[21]`
